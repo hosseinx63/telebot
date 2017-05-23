@@ -2,7 +2,87 @@
 
 ## VARIABLES
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
-TDCLI='https://valtman.name/files/telegram-cli-1222'
+TDCLI=rm -rf tg && git clone --recursive https://github.com/janlou/tg.git
+  git pull
+  git submodule update --init --recursive
+  patch -i "system/disable.patch" -p 0 --batch --forward
+  RET=$?;
+
+  cd tg
+  if [ $RET -ne 0 ]; then
+    autoconf -i
+  fi
+  ./configure && make
+
+  RET=$?; if [ $RET -ne 0 ]; then
+    echo "Error. Exiting."; exit $RET;
+  fi
+  cd ..
+  install_luarocks
+  install_rocks
+  
+  sleep 0.9
+  echo ""
+  echo ""
+  echo "Bot has been installed! you can run bot with:"
+  echo ""
+  echo "RUN BOT WITH CLI MOD:"
+  echo "$0"
+  echo ""
+  sleep 0.9
+  echo ""
+  echo "RUN BOT WITH SELF MOD:"
+  echo "$0 self"
+  echo ""
+  sleep 0.9
+  echo ""
+  echo "RUN BOT WITH API MOD:"
+  echo "$0 api"
+  echo ""
+  sleep 0.9
+  echo ""
+  echo "RUN BOT WITH ICLI MOD:"
+  echo "$0 icli"
+  echo ""
+  echo ""
+  read -p "Do you want to update the project? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+        sudo apt-get update
+	    wait
+	    sudo apt-get upgrade
+	    wait
+	    sudo apt-get install libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-dev libevent-dev make unzip git redis-server g++ libjansson-dev libpython-dev expat libexpat1-dev -y
+	    wait
+		install2
+    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+        install2
+	else
+	    sudos
+    fi
+	read -p "Do you want to update the project? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+        sudo apt-get update
+	    wait
+	    sudo apt-get upgrade
+	    wait
+	    sudo apt-get install libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-dev libevent-dev make unzip git redis-server g++ libjansson-dev libpython-dev expat libexpat1-dev -y
+	    wait
+		install2
+    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+        install2
+	else
+	    sudos
+    fi
+	read -p "Do you want to install starter files? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+        install
+    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+        exit 1
+	else
+	    que
+fi
+sudo apt-get install libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-dev libevent-dev make unzip git redis-server g++ libjansson-dev libpython-dev expat libexpat1-dev tmux subversion
+
 
 ## Print Colorful
 # Print text in red
@@ -248,7 +328,7 @@ case $1 in
     if [ -a "$THIS_DIR"/bot-"$id".lua ]; then
       screen -x -s bot-"$id" quit
       while true ; do
-        screen -s bot-"$id" ./telegram-cli -p bot-"$id" -s bot-"$id".lua
+        screen -s bot-"$id"  ./tg/bin/telegram-cli -k ./tg/tg-server.pub -p ./system/bot-"$id" -s ./system/bot-"$id".lua
         sleep 10
       done
     else
@@ -260,7 +340,7 @@ case $1 in
   ;;
   *)
     if [ -a "$THIS_DIR"/bot-"$1".lua ]; then
-      ./telegram-cli -p bot-"$1" -s bot-"$1".lua
+      ./tg/bin/telegram-cli -k ./tg/tg-server.pub -p ./system/bot-"$1" -s ./system/bot-"$1".lua
     else
     usage
     fi
